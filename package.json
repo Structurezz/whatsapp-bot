@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
-    "start": "node src/main.js",
-    "start:dev": "nodemon src/main.js",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "seed": "ts-node src/scripts/seed.ts"
   },
   "dependencies": {
