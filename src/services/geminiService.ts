@@ -28,8 +28,12 @@ const AVAILABLE_SERVICES = [
   'Laundry Service',
 ];
 
+const getWhatsAppNumber = () =>
+  (process.env.TWILIO_WHATSAPP_NUMBER || '').replace('whatsapp:', '');
+
 const whatsappSystemPrompt = (today: string) => `
 You are a friendly WhatsApp booking assistant for a professional cleaning services company.
+This assistant operates on WhatsApp number: ${getWhatsAppNumber()}
 
 SERVICES AVAILABLE:
 ${AVAILABLE_SERVICES.map((s) => `• ${s}`).join('\n')}
@@ -61,6 +65,7 @@ Keep responses under 180 words.
 
 const voiceSystemPrompt = (today: string) => `
 You are a phone booking assistant for a professional cleaning services company. The customer is speaking with you over the phone.
+Customers can also reach us on WhatsApp at ${getWhatsAppNumber()} for text-based bookings.
 
 SERVICES AVAILABLE: ${AVAILABLE_SERVICES.join(', ')}
 
@@ -92,7 +97,7 @@ const getModel = (channel: Channel) => {
   const today = new Date().toDateString();
 
   return genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash',
     systemInstruction: channel === 'voice'
       ? voiceSystemPrompt(today)
       : whatsappSystemPrompt(today),
