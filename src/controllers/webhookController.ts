@@ -54,13 +54,7 @@ export const whatsappWebhook = async (
       return;
     }
 
-    // ── Twilio format (URL-encoded) — only if Meta is not configured ──────
-    if (process.env.META_PHONE_NUMBER_ID) {
-      logger.warn('Received non-Meta webhook payload while META_PHONE_NUMBER_ID is set — ignoring');
-      res.status(200).send('<Response></Response>');
-      return;
-    }
-
+    // ── Twilio format (URL-encoded) ────────────────────────────────────────
     const from: string = req.body.From || '';
     const body: string = req.body.Body || '';
     const profileName: string = req.body.ProfileName || '';

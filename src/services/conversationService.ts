@@ -1,15 +1,8 @@
 import Conversation from '../models/Conversation';
 import { createBooking } from './bookingService';
-import { sendWhatsAppMessage as sendTwilio } from './twilioService';
-import { sendMetaWhatsAppMessage as sendMeta } from './metaService';
+import { sendWhatsAppMessage } from './twilioService';
 import { processMessage, Channel } from './geminiService';
 import logger from '../utils/logger';
-
-// Use Meta if META_PHONE_NUMBER_ID is configured, otherwise fall back to Twilio
-const sendWhatsAppMessage = (to: string, body: string): Promise<void> =>
-  process.env.META_PHONE_NUMBER_ID
-    ? sendMeta(to, body)
-    : sendTwilio(to, body);
 
 const RESET_PATTERN = /^(hi|hello|start|restart|hey|book|yo|sup|hiya|good morning|good afternoon|good evening|gm|gn)$/i;
 
