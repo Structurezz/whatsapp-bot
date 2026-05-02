@@ -1,23 +1,14 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export type ConversationState =
-  | 'START'
-  | 'SELECT_SERVICE'
-  | 'SELECT_DATE'
-  | 'ENTER_ADDRESS'
-  | 'CONFIRM'
-  | 'DONE';
-
 export interface IConversationData {
-  service?: string;
-  bookingDate?: string;
-  address?: string;
   customerName?: string;
 }
 
 export interface IConversation extends Document {
   phone: string;
-  state: ConversationState;
+  channel: 'whatsapp' | 'voice';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  history: any[];
   data: IConversationData;
   lastMessageAt: Date;
   createdAt: Date;
@@ -29,18 +20,18 @@ const ConversationSchema = new Schema<IConversation>(
     phone: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
-    state: {
+    channel: {
       type: String,
-      enum: ['START', 'SELECT_SERVICE', 'SELECT_DATE', 'ENTER_ADDRESS', 'CONFIRM', 'DONE'],
-      default: 'START',
+      enum: ['whatsapp', 'voice'],
+      default: 'whatsapp',
+    },
+    history: {
+      type: mongoose.Schema.Types.Mixed,
+      default: [],
     },
     data: {
-      service: String,
-      bookingDate: String,
-      address: String,
       customerName: String,
     },
     lastMessageAt: {
@@ -51,10 +42,10 @@ const ConversationSchema = new Schema<IConversation>(
   { timestamps: true }
 );
 
+// Each phone+channel pair has its own conversation session
+ConversationSchema.index({ phone: 1, channel: 1 }, { unique: true });
+
 // Auto-expire stale conversations after 2 hours of inactivity
-ConversationSchema.index(
-  { lastMessageAt: 1 },
-  { expireAfterSeconds: 7200 }
-);
+ConversationSchema.index({ lastMessageAt: 1 }, { expireAfterSeconds: 7200 });
 
 export default mongoose.model<IConversation>('Conversation', ConversationSchema);
