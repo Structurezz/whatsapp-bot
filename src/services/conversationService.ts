@@ -4,7 +4,7 @@ import { sendWhatsAppMessage } from './twilioService';
 import { processMessage, Channel } from './geminiService';
 import logger from '../utils/logger';
 
-const RESET_PATTERN = /^(hi|hello|start|restart|hey|book)$/i;
+const RESET_PATTERN = /^(hi|hello|start|restart|hey|book|yo|sup|hiya|good morning|good afternoon|good evening|gm|gn)$/i;
 
 export const handleIncomingMessage = async (
   phone: string,
