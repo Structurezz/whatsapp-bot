@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator';
 import { AuthRequest } from '../middleware/auth';
 import * as bookingService from '../services/bookingService';
 import { BookingStatus } from '../models/Booking';
+import { notifyCustomer } from '../services/notificationService';
 
 export const createBookingValidation = [
   body('customerPhone').notEmpty().withMessage('Customer phone is required'),
@@ -85,7 +86,17 @@ export const updateBooking = async (
       return;
     }
 
+    // Capture old status before update for change detection
+    const existing = await bookingService.getBookingById(req.params.id);
+    const oldStatus = existing.status;
+
     const booking = await bookingService.updateBooking(req.params.id, req.body);
+
+    // Fire WhatsApp notification if status changed
+    if (req.body.status && req.body.status !== oldStatus) {
+      notifyCustomer(booking, req.body.status as BookingStatus, oldStatus).catch(() => {});
+    }
+
     res.status(200).json({ success: true, data: { booking } });
   } catch (error) {
     next(error);
